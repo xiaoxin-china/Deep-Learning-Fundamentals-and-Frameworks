@@ -9,11 +9,14 @@
     ├── 📁 flower_data
     ├── 📁 flower_data_dataloader
     ├── 📁 mnist
+    ├── 📁 THUCNews
     └── 📁 temps
 └── 📁 model
     ├── 📁 DNN
         ├── 📄 气温预测.py
         └── 📄 手写体识别.py
+    ├── 📁 RNN
+        └── 📁 LSTM
     └── 📁 CNN
         ├── 📄 图像分类任务--迁移训练两阶段_final.py
         └── 📁 dataloder制作
@@ -31,4 +34,10 @@
 
  仿照LTMsReserch项目文件对本文件进行系统性整理和规划，后续添加文件请严格按照目录
 
+
+ ##### 2026.2.5 20.13
+
+ 增加RNN中的LSTM部分
+
+ 
  
