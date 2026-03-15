@@ -1,7 +1,8 @@
 import cv2#默认读取是一个BGR
 import matplotlib.pyplot as plt
 import numpy as np
-"""
+
+
 #读取展示：
 
 img = cv2.imread('cat.jpg')#读取成一个numpy三维数组
@@ -111,7 +112,7 @@ cv2.imshow('cat&dog',res)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
 
-"""
+
 
 #图像阈值
 img_cat = cv2.imread('cat.jpg')
@@ -120,4 +121,120 @@ ret,thresh2 = cv2.threshold(img_cat,127,255,cv2.THRESH_BINARY_INV)#输入图，�
 ret,thresh3 = cv2.threshold(img_cat,127,255,cv2.THRESH_TRUNC)#输入图，阈值，赋予值（当满足有关阈值条件后所赋予的值），二值化操作的类型，这里是THRESH_TRUNC的截断操作，大于阈值取阈值
 ret,thresh4 = cv2.threshold(img_cat,127,255,cv2.THRESH_TOZERO)#输入图，阈值，赋予值（当满足有关阈值条件后所赋予的值），二值化操作的类型，这里是THRESH_TOZERO，大于阈值全为0，小于阈值不变
 ret,thresh5 = cv2.threshold(img_cat,127,255,cv2.THRESH_TOZERO_INV)#输入图，阈值，赋予值（当满足有关阈值条件后所赋予的值），二值化操作的类型，这里是THRESH_TOZERO_INV，小于阈值全为0，大于阈值不变
+
+
+
+#图像平滑处理（去除小部分噪声点）
+img = cv2.imread('/Users/app/Desktop/Deep-Learning-Fundamentals-and-Frameworks-main/model/OpenCV/图像操作/lenaNoise.png')
+cv2.imshow('lena',img)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+
+#均值滤波：简单的均值卷积操作
+#执行完后噪声点淡了，但是整体图像的清晰度也变低了，卷积大小越大，越糊
+blur = cv2.blur(img,(3,3))
+cv2.imshow('blur',blur)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+
+#方框滤波：基本和均值一样，可以选择归一化
+box = cv2.boxFilter(img,-1,(3,3),normalize=False)#-1表示在颜色通道上是一致的，一般不需要去改；normalize：归一化，如果不归一化，可能会越界，如果改为True，那就和均值滤波是一样的
+#一旦越界，越界的点都为255，为白
+cv2.imshow('box',box)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+
+#高斯滤波：在位置上根据绝对距离设置权重，再用权重矩阵进行操作
+aussian = cv2.GaussianBlur(img,(5,5),1)
+cv2.imshow('gaussian',aussian)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+
+#中值滤波：把附近矩阵的像素点的值进行排序，取中值当作平滑处理后的结果
+#相比前面几种，会更少的降低清晰度下降，但是如果核太大，也是会降低锐度
+median = cv2.medianBlur(img,3)
+cv2.imshow('median',median)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+
+
+#展示所有的
+res = np.hstack((img,blur,box,aussian,median))#np.hstack:横着拼接，np.vstack：数着拼接
+cv2.imshow('res',res)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+
+
+#腐蚀与膨胀
+#并不只适用于二值图，也可以用作灰度图，膨胀取极大值，腐蚀取极小值，在彩色图是先转成灰度图或者阈值分割成二值图或者只对某个通道做
+#形态学：腐蚀操作
+#demo:去除毛刺，先用腐蚀去除毛刺，再用膨胀恢复原大小
+img = cv2.imread('/Users/app/Desktop/Deep-Learning-Fundamentals-and-Frameworks-main/model/OpenCV/图像操作/dige.png')
+cv2.imshow('dige',img)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+
+kernel = np.ones((3,3),np.uint8)#核大小
+erosion = cv2.erode(img,kernel,iterations = 1)#腐蚀操作（原图像，核，迭代次数）
+cv2.imshow('erosion',erosion)
+cv2.waitKey(0)
+
+#形态学：膨胀操作
+kernel = np.ones((3,3),np.uint8)
+dilation = cv2.dilate(erosion,kernel,iterations = 1)#膨胀操作
+cv2.imshow('dilation',dilation)
+cv2.waitKey(0)
+
+
+
+#开运算与并运算
+#开：先腐蚀再膨胀（去除毛刺）
+img = cv2.imread('/Users/app/Desktop/Deep-Learning-Fundamentals-and-Frameworks-main/model/OpenCV/图像操作/dige.png')
+kernel = np.ones((3,3),np.uint8)
+opening = cv2.morphologyEx(img,cv2.MORPH_OPEN,kernel)
+cv2.imshow('opening',opening)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+
+#闭：先膨胀再腐蚀
+img = cv2.imread('/Users/app/Desktop/Deep-Learning-Fundamentals-and-Frameworks-main/model/OpenCV/图像操作/dige.png')
+kernel = np.ones((3,3),np.uint8)
+closing = cv2.morphologyEx(img,cv2.MORPH_CLOSE,kernel)
+cv2.imshow('closing',closing)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+
+
+
+#梯度运算：膨胀-腐蚀
+pie = cv2.imread('/Users/app/Desktop/Deep-Learning-Fundamentals-and-Frameworks-main/model/OpenCV/图像操作/pie.png')
+kernel = np.ones((5,5),np.uint8)
+dilate = cv2.dilate(pie,kernel,iterations = 3)
+erosion = cv2.erode(pie,kernel,iterations = 3)
+res = np.hstack((dilate,erosion))
+cv2.imshow('res',res)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+
+#梯度运算
+gradient = cv2.morphologyEx(pie,cv2.MORPH_GRADIENT,kernel)
+cv2.imshow('gradient',gradient)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+
+
+
+#礼帽与黑帽
+#礼帽：原始输入-开运算结果（带刺的减去开运算==只剩下刺）
+img = cv2.imread('/Users/app/Desktop/Deep-Learning-Fundamentals-and-Frameworks-main/model/OpenCV/图像操作/dige.png')
+kernel = np.ones((3,3),np.uint8)
+tophat = cv2.morphologyEx(img,cv2.MORPH_TOPHAT,kernel)
+cv2.imshow('tophat',tophat)
+cv2.waitKey(0)
+#黑帽：闭运算-原始输入结果
+img = cv2.imread('/Users/app/Desktop/Deep-Learning-Fundamentals-and-Frameworks-main/model/OpenCV/图像操作/dige.png')
+kernel = np.ones((3,3),np.uint8)
+blackhat = cv2.morphologyEx(img,cv2.MORPH_BLACKHAT,kernel)
+cv2.imshow('blackhat',blackhat)
+cv2.waitKey(0)
 
