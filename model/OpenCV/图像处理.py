@@ -153,8 +153,53 @@ rect_area = w * h#边界矩形的面积
 extent = float(area)/rect_area#轮廓面积和边界矩形比
 print("轮廓面积和边界矩形比：",extent)
 
-"""
+
 #模版匹配
+img = cv2.imread('/Users/app/Desktop/Deep-Learning-Fundamentals-and-Frameworks-main/model/OpenCV/图像操作/lena.jpg')
+face = cv2.imread('/Users/app/Desktop/Deep-Learning-Fundamentals-and-Frameworks-main/model/OpenCV/图像操作/截屏2026-03-17 20.08.51.png')
+face_down = cv2.pyrDown(face)
+face_down = cv2.pyrDown(face_down)
+h,w = face_down.shape[:2]
+print(img.shape)
+print('-----')
+print(face_down.shape)
+print('-----')
+print(h,w)
+
+#进行模版匹配
+method = ['cv2.TM_SQDIFF_NORMED','cv2.CCORR_NORMED','cv2.CCOEFF_NORMED']#以上三者都是归一化之后的，加了归一化更可靠一些
+#第一个是平常差匹配，越接近0越好，第三个是消算系数，越接近1越好
+res = cv2.matchTemplate(img,face_down,cv2.TM_SQDIFF_NORMED)#平方差匹配
+print(res.shape)
+
+#找最优匹配位置
+min_val,max_val,min_loc,max_loc = cv2.minMaxLoc(res)
+print(min_val,max_val,min_loc,max_loc)#对于平方差匹配来说，找的是min_loc的点，这个点是匹配上的那个板块的左上角
+ans = img[107:107+92,90:90+77]
+ans_hstack = np.hstack((ans,face_down))
+cv2.imshow('img',ans_hstack)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+
+
+#匹配多个对象：找同一个小块
+img_rgb = cv2.imread('mario.jpg')
+img_gray = cv2.cvtColor(img_rgb, cv2.COLOR_BGR2GRAY)
+template = cv2.imread('mario_coin.jpg', 0)
+h, w = template.shape[:2]
+
+res = cv2.matchTemplate(img_gray, template, cv2.TM_CCOEFF_NORMED)
+threshold = 0.8
+# 取匹配程度大于80%的坐标
+loc = np.where(res >= threshold)
+for pt in zip(*loc[::-1]):  # *号表示可选参数
+    bottom_right = (pt[0] + w, pt[1] + h)
+    cv2.rectangle(img_rgb, pt, bottom_right, (0, 0, 255), 2)
+
+cv2.imshow('img_rgb', img_rgb)
+cv2.waitKey(0)
+"""
+
 
 
 
