@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 
 
+
 """
 #Canny边缘检测
 
@@ -67,7 +68,7 @@ cv2.imshow('down',down)
 print(down.shape)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
-"""
+
 
 
 #图像轮廓
@@ -77,7 +78,7 @@ cv2.destroyAllWindows()
 #method:CHAIN_APPROX_NONE:以Freeman链码的方式输出轮廓，所有其他方法输出多边形（顶点的序列）      CHAIN_APPROX_SIMPLE:压缩水平的，垂直的和斜的部分，也就是函数只保留他们的终点部分
 
 #1、读数据  2、转换成灰度图    3、用阈值转换成二值图
-img = cv2.imread('/Users/app/Desktop/Deep-Learning-Fundamentals-and-Frameworks-main/model/OpenCV/图像操作/aacff63e4a217810d4d9c42d490a297d.jpg')
+img = cv2.imread('/Users/app/Desktop/Deep-Learning-Fundamentals-and-Frameworks-main/model/OpenCV/图像操作/contours2.png')
 gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
 ret, thresh = cv2.threshold(gray,127,255,cv2.THRESH_BINARY)
 cv2.imshow('thresh',thresh)
@@ -93,6 +94,10 @@ res = cv2.drawContours(draw_img,contours,-1,(0,0,255),2)
 cv2.imshow('draw_img',draw_img)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
+ret = np.hstack((img,draw_img))
+cv2.imshow('ret',ret)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
 
 
 #轮廓特征
@@ -102,5 +107,55 @@ print(cv2.contourArea(cnt))
 #周长,True表示闭合的
 print(cv2.arcLength(cnt,True))
 
-
+"""
+"""
 #轮廓近似
+img = cv2.imread('/Users/app/Desktop/Deep-Learning-Fundamentals-and-Frameworks-main/model/OpenCV/图像操作/contours.png')
+gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
+ret ,thresh = cv2.threshold(gray,127,255,cv2.THRESH_BINARY)
+res = thresh.copy()
+contours,hierarchy = cv2.findContours(res,cv2.RETR_TREE,cv2.CHAIN_APPROX_NONE)
+"""
+"""
+res = cv2.drawContours(img,contours,0,(0,0,255),2)
+cv2.imshow('res',res)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+"""
+"""
+cnt = contours[4]#指定外界轮廓
+epsilon = 0.02 * cv2.arcLength(cnt,True)#指定比较值为0.1倍的周长
+approx = cv2.approxPolyDP(cnt,epsilon,True)#做完这一步还只是一个轮廓
+draw_img = img.copy()
+res = cv2.drawContours(draw_img,[approx],-1,(0,0,255),2)#把轮廓放到RGB三通道图上
+cv2.imshow('res',res)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+
+#边界矩形
+img = cv2.imread('/Users/app/Desktop/Deep-Learning-Fundamentals-and-Frameworks-main/model/OpenCV/图像操作/contours.png')
+gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)#转成灰度图
+ret, thresh = cv2.threshold(gray,127,255,cv2.THRESH_BINARY)#转成二值图
+res = thresh.copy()#拷贝一份
+contours,hierarchy = cv2.findContours(res,cv2.RETR_TREE,cv2.CHAIN_APPROX_NONE)#返回轮廓点集和层集
+cnt = contours[0]#选取一个轮廓
+epsilon = 0.1 * cv2.arcLength(cnt,True)
+
+x,y,w,h = cv2.boundingRect(cnt)#求边界矩形
+img = cv2.rectangle(img,(x,y),(x+w,y+h),(0,255,0),2)#画到原图像上，而非二值图，（x,y）是左上角的点，（x+w，y+h）是右下角的点
+cv2.imshow('img',img)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+
+area = cv2.contourArea(cnt)
+x,y,w,h = cv2.boundingRect(cnt)
+rect_area = w * h#边界矩形的面积
+extent = float(area)/rect_area#轮廓面积和边界矩形比
+print("轮廓面积和边界矩形比：",extent)
+
+"""
+#模版匹配
+
+
+
+
