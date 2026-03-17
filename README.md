@@ -72,4 +72,8 @@
 
  OpenCV图像处理已完成至边界矩形部分，已提交至.\model\OpenCV\图像处理.py
 
+ 重新整理readme中文件夹目录，将原有OpenCV添加
+
+ 
+
  
