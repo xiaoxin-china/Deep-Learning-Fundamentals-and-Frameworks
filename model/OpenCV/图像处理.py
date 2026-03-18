@@ -1,6 +1,6 @@
 import cv2
 import numpy as np
-
+import matplotlib.pyplot as plt
 
 
 """
@@ -198,9 +198,68 @@ for pt in zip(*loc[::-1]):  # *号表示可选参数
 
 cv2.imshow('img_rgb', img_rgb)
 cv2.waitKey(0)
+
+
+#直方图
+#cv2.calcHist(img,channels,mask,histSize,ranges)
+#img:原图像格式为uint8或者float32，当传入函数时应该用中括号[img]括起来
+#channels:如果没有进行一个灰度的转换，可以指定一下，BGR，分别用[0][1][2]来指定哪个通道
+#mask:掩膜图像，统计整幅图像直方图就设置为None，如果只想统计某一部分，就用掩码
+#histSize:BIN的数目，也应用中括号括来，原先是256，可以指定0-10为一个BIN，11-20是一个BIN，这样压缩范围
+#ranges:像素值范围通常：0-256
+
+img = cv2.imread('/Users/app/Desktop/Deep-Learning-Fundamentals-and-Frameworks-main/model/OpenCV/图像操作/cat.jpg')
+color = ['b','g','r']
+for i,col in enumerate(color):#枚举的格式
+    histr = cv2.calcHist([img],[i],None,[256],[0,256])
+    print(histr.shape)
+    plt.plot(histr,color = col)#用对应颜色画出对应的直方图
+    plt.xlim([0,256])#设置x轴坐标为0到256
+plt.show()
+
+#掩码mask操作
+#掩码本质就是一个黑白图，需要与原图片大小一致，黑色区域（像素为0）不统计，白色区域（像素255）统计，
+mask = np.zeros(img.shape[:2],dtype = np.uint8)#img.shape[:2]取的是图像的长宽
+mask[100:300,100:300] = 255#把中间这一块设置为白色，表示只看这一块
+#掩码作用到原图上
+masked_img = cv2.bitwise_and(img,img,mask = mask)#img与img做按位与运算，但是只在mask区域上
+res = cv2.calcHist([masked_img],[0],mask,[256],[0,256])
+cv2.imshow('masked_img',masked_img)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+plt.plot(res,color = color[0])
+plt.xlim([0,256])
+plt.show()
+
+
+#均衡化：对比度拉高，让暗的地方更暗，亮的地方更亮，适合偏暗偏灰，雾蒙蒙，亮度分布太集中的图像，原来不太能注意到的细节都能看到
+img = cv2.imread('/Users/app/Desktop/Deep-Learning-Fundamentals-and-Frameworks-main/model/OpenCV/图像操作/lena.jpg',0)
+
+plt.hist(img.ravel(),256)
+plt.show()
+
+equ = cv2.equalizeHist(img)
+plt.hist(equ.ravel(),256)
+plt.show()
+
+res = np.hstack((img,equ))
+cv2.imshow('res',res)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+
+#自适应均衡化
+#创建CLAHE对象
+clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8,8))
+#第一个参数：对比度限制参数，值越大对比度增强越明显，值太大噪声也可能更明显，常用2.0
+#第二个参数：把图像分成多少小块来处理，分块越小局部增强越强，分块太小图像可能不自然，分块太大又会接近全局均衡化
+#应用CLAHE
+restemp = clahe.apply(img)#一般用于单通道图像，也就是灰度图
+cv2.imshow('res',restemp)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
 """
 
 
-
+#傅立叶变换
 
 
